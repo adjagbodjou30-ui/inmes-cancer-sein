@@ -1,45 +1,288 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>INMeS contre le Cancer du Sein</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>INMeS contre le Cancer du Sein</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
+
+body{
+background:#fdf6f8;
+color:#333;
+}
+
+.hero{
+background:linear-gradient(135deg,#e91e63,#c2185b);
+color:white;
+text-align:center;
+padding:60px 20px;
+}
+
+.hero h1{
+font-size:42px;
+margin-bottom:15px;
+}
+
+.hero p{
+font-size:18px;
+max-width:700px;
+margin:auto;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:30px 20px;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.1);
+margin-bottom:25px;
+}
+
+.card h2{
+color:#e91e63;
+margin-bottom:20px;
+}
+
+label{
+display:block;
+margin-top:15px;
+font-weight:bold;
+}
+
+input,
+select{
+width:100%;
+padding:12px;
+margin-top:5px;
+border:1px solid #ccc;
+border-radius:10px;
+}
+
+.radio-group{
+margin-top:10px;
+}
+
+.radio-group label{
+display:inline-block;
+margin-right:20px;
+font-weight:normal;
+}
+
+.payment-box{
+background:#fde7ef;
+border:2px solid #e91e63;
+padding:20px;
+border-radius:15px;
+}
+
+.payment-box h3{
+color:#c2185b;
+margin-bottom:15px;
+}
+
+.network{
+padding:10px;
+background:white;
+border-radius:10px;
+margin:10px 0;
+}
+
+button{
+background:#e91e63;
+color:white;
+border:none;
+padding:15px 30px;
+font-size:16px;
+border-radius:12px;
+cursor:pointer;
+margin-top:20px;
+width:100%;
+}
+
+button:hover{
+background:#c2185b;
+}
+
+footer{
+text-align:center;
+padding:30px;
+color:#777;
+}
+
+.info{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.info div{
+background:white;
+padding:20px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+</style>
 </head>
+
 <body>
-  <h1>INMeS contre le Cancer du Sein</h1>
 
-  <h2>Inscription</h2>
+<section class="hero">
+<h1>🎀 INMeS contre le Cancer du Sein</h1>
 
-  <form>
-    <input type="text" placeholder="Nom"><br><br>
+<p>
+Campagne de sensibilisation, d'information et d'engagement communautaire contre le cancer du sein.
+Ensemble pour la prévention et le dépistage précoce.
+</p>
+</section>
 
-    <input type="text" placeholder="Prénom"><br><br>
+<div class="container">
 
-    <input type="text" placeholder="Profession"><br><br>
+<div class="info">
+<div>✅ Sensibilisation</div>
+<div>✅ Attestation</div>
+<div>✅ Participation communautaire</div>
+<div>✅ Engagement citoyen</div>
+</div>
 
-    <input type="tel" placeholder="WhatsApp"><br><br>
+<form>
 
-    <input type="email" placeholder="Email"><br><br>
+<div class="card">
 
-    <select>
-      <option>Taille T-shirt</option>
-      <option>M</option>
-      <option>L</option>
-      <option>XL</option>
-      <option>2XL</option>
-      <option>3XL</option>
-    </select>
+<h2>Étape 1 : Inscription</h2>
 
-    <br><br>
+<label>
+Acceptez-vous de participer à la campagne ?
+</label>
 
-    <h3>Participation : 3000 FCFA</h3>
+<div class="radio-group">
+<label><input type="radio" name="participation" required> Oui</label>
+<label><input type="radio" name="participation"> Non</label>
+</div>
 
-    <p>MTN : 0197678574</p>
-    <p>MOOV : 0160657000</p>
-    <p>CELTIS : 0143096126</p>
+<label>Nom</label>
+<input type="text" required>
 
-    <button type="submit">
-      S'inscrire
-    </button>
+<label>Prénom</label>
+<input type="text" required>
 
-  </form>
+<label>Profession</label>
+<input type="text" required>
+
+<label>Numéro WhatsApp</label>
+<input type="tel" required>
+
+<label>Email</label>
+<input type="email" required>
+
+<label>Taille du T-shirt</label>
+<select required>
+<option value="">Sélectionner</option>
+<option>M</option>
+<option>L</option>
+<option>XL</option>
+<option>2XL</option>
+<option>3XL</option>
+</select>
+
+<label>Statut</label>
+<select required>
+<option value="">Sélectionner</option>
+<option>Interne</option>
+<option>Externe</option>
+</select>
+
+</div>
+
+<div class="card">
+
+<div class="payment-box">
+
+<h2>Étape 2 : Paiement</h2>
+
+<h3>Montant à payer : 3 000 FCFA</h3>
+
+<div class="network">
+<strong>MTN :</strong> 0197678574
+</div>
+
+<div class="network">
+<strong>MOOV :</strong> 0160657000
+</div>
+
+<div class="network">
+<strong>CELTIS :</strong> 0143096126
+</div>
+
+<label>Réseau utilisé</label>
+<select required>
+<option value="">Choisir</option>
+<option>MTN</option>
+<option>MOOV</option>
+<option>CELTIS</option>
+</select>
+
+<label>Numéro ayant effectué le paiement</label>
+<input type="text" required>
+
+<label>Référence de transaction</label>
+<input type="text" required>
+
+<label>Joindre le reçu</label>
+<input type="file" required>
+
+</div>
+
+<button type="submit">
+Valider mon inscription
+</button>
+
+</div>
+
+</form>
+
+<div class="card">
+<h2>Important</h2>
+
+<p>
+Après validation, votre inscription sera enregistrée.
+</p>
+
+<br>
+
+<p>
+Un reçu de confirmation sera envoyé à votre adresse e-mail.
+</p>
+
+<br>
+
+<p>
+À la fin des inscriptions, les participants recevront leur attestation.
+</p>
+
+</div>
+
+</div>
+
+<footer>
+INMeS • Campagne contre le Cancer du Sein
+</footer>
+
 </body>
 </html>
