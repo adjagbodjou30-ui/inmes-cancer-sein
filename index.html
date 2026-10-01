@@ -402,7 +402,29 @@ if (uploadError) {
       console.error(error);
       throw error;
     }
+// Envoi du mail de confirmation
+try {
+  const reponseMail = await fetch("/api/send-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email,
+      nom: nom,
+      prenom: prenom,
+      numeroInscription: numeroInscription
+    })
+  });
 
+  const resultatMail = await reponseMail.json();
+
+  if (!reponseMail.ok) {
+    console.error("Erreur envoi mail :", resultatMail);
+  }
+} catch (erreurMail) {
+  console.error("Erreur connexion service mail :", erreurMail);
+}
     alert(
       "Inscription enregistrée avec succès !\n\n" +
       "Votre numéro d'inscription : " +
