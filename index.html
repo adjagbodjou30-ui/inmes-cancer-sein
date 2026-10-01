@@ -327,7 +327,12 @@ form.addEventListener("submit", async function (event) {
   const reseau = selects[2].value;
   const telephonePaiement = inputs[7].value.trim();
   const referenceTransaction = inputs[8].value.trim();
+const fichierRecu = inputs[9].files[0];
 
+if (!fichierRecu) {
+  alert("Veuillez joindre votre reçu de paiement.");
+  return;
+}
   // Vérification
   if (
     !nom ||
@@ -351,7 +356,22 @@ form.addEventListener("submit", async function (event) {
     new Date().getFullYear() +
     "-" +
     Math.floor(100000 + Math.random() * 900000);
+// Envoi du reçu dans Supabase Storage
+const extension = fichierRecu.name.split(".").pop();
+const nomFichier =
+  numeroInscription + "-" + Date.now() + "." + extension;
 
+const { error: uploadError } = await client.storage
+  .from("Recu")
+  .upload(nomFichier, fichierRecu, {
+    upsert: false,
+    contentType: fichierRecu.type
+  });
+
+if (uploadError) {
+  console.error("Erreur upload reçu :", uploadError);
+  throw uploadError;
+}
   const donnees = {
     numero_inscription: numeroInscription,
     nom: nom,
@@ -363,6 +383,7 @@ form.addEventListener("submit", async function (event) {
     statut: statut,
     reseau: reseau,
     reference_transaction: referenceTransaction,
+    recu_url: nomFichier,
     montant: 3000,
     paiement_valide: false
   };
