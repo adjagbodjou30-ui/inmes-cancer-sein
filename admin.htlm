@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — INMeS Cancer du Sein</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+      color: #222;
+    }
+
+    header {
+      background: #7b1e5a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    input, button {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: #7b1e5a;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 30px;
+      color: #7b1e5a;
+      margin-bottom: 5px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+
+    .valid {
+      color: green;
+      font-weight: bold;
+    }
+
+    .pending {
+      color: #c77a00;
+      font-weight: bold;
+    }
+
+    .btn-recu {
+      background: #444;
+      margin-right: 5px;
+    }
+
+    .btn-valid {
+      background: #168a45;
+    }
+
+    .btn-logout {
+      background: #b3261e;
+      float: right;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Administration — INMeS</h1>
+  <p>Campagne de sensibilisation au cancer du sein</p>
+</header>
+
+<div class="container">
+
+  <!-- CONNEXION -->
+  <div id="loginCard" class="card">
+    <h2>Connexion administrateur</h2>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Adresse e-mail"
+      value="adjagbodjou30@gmail.com"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Mot de passe"
+    >
+
+    <button id="loginBtn">Se connecter</button>
+
+    <div id="loginMessage" class="message"></div>
+  </div>
+
+  <!-- TABLEAU DE BORD -->
+  <div id="dashboard" class="hidden">
+
+    <div class="card">
+      <button id="logoutBtn" class="btn-logout">
+        Déconnexion
+      </button>
+
+      <h2>Tableau de bord</h2>
+      <p id="adminEmail"></p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <strong id="totalParticipants">0</strong>
+        Participants
+      </div>
+
+      <div class="stat">
+        <strong id="totalValides">0</strong>
+        Paiements validés
+      </div>
+
+      <div class="stat">
+        <strong id="totalAttente">0</strong>
+        En attente
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Participants</h2>
+
+      <input
+        type="text"
+        id="recherche"
+        placeholder="Rechercher par nom, prénom, téléphone ou numéro..."
+      >
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>N° inscription</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Profession</th>
+              <th>Téléphone</th>
+              <th>E-mail</th>
+              <th>T-shirt</th>
+              <th>Statut</th>
+              <th>Réseau</th>
+              <th>Référence</th>
+              <th>Paiement</th>
+              <th>Reçu</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="participantsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL =
+  "https://sswjeqawwhdimmwzveiz.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzd2plcWF3d2hkaW1td3p2ZWl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTgyMjEsImV4cCI6MjEwNjI5NDIyMX0.eY6rLaPOUuoHyaigNKZshsxXwipCyz2EmfcVB3WTbtE";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+let participants = [];
+
+/* =========================
+   CONNEXION
+========================= */
+
+document
+  .getElementById("loginBtn")
+  .addEventListener("click", async function () {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const message =
+      document.getElementById("loginMessage");
+
+    message.textContent = "Connexion...";
+
+    const { data, error } =
+      await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      console.error(error);
+      message.textContent =
+        "Erreur : " + error.message;
+      return;
+    }
+
+    if (!data.user) {
+      message.textContent =
+        "Connexion impossible.";
+      return;
+    }
+
+    afficherDashboard(data.user);
+    chargerParticipants();
+  });
+
+
+/* =========================
+   AFFICHER DASHBOARD
+========================= */
+
+function afficherDashboard(user) {
+
+  document
+    .getElementById("loginCard")
+    .classList.add("hidden");
+
+  document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("adminEmail")
+    .textContent =
+      "Connecté : " + user.email;
+}
+
+
+/* =========================
+   CHARGER PARTICIPANTS
+========================= */
+
+async function chargerParticipants() {
+
+  const { data, error } =
+    await client
+      .from("participants")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+    console.error(error);
+
+    alert(
+      "Erreur lors du chargement des participants : " +
+      error.message
+    );
+
+    return;
+  }
+
+  participants = data || [];
+
+  afficherParticipants(participants);
+  mettreAJourStats();
+}
+
+
+/* =========================
+   AFFICHER PARTICIPANTS
+========================= */
+
+function afficherParticipants(liste) {
+
+  const body =
+    document.getElementById("participantsBody");
+
+  body.innerHTML = "";
+
+  liste.forEach(function (p) {
+
+    const tr =
+      document.createElement("tr");
+
+    const paiement =
+      p.paiement_valide
+        ? '<span class="valid">VALIDÉ</span>'
+        : '<span class="pending">EN ATTENTE</span>';
+
+    const boutonRecu =
+      p.recu_url
+        ? `<button class="btn-recu"
+             onclick="voirRecu('${p.recu_url}')">
+             Voir reçu
+           </button>`
+        : "Aucun reçu";
+
+    const boutonValidation =
+      p.paiement_valide
+        ? ""
+        : `<button class="btn-valid"
+             onclick="validerPaiement('${p.id}')">
+             Valider
+           </button>`;
+
+    tr.innerHTML = `
+      <td>${p.numero_inscription || ""}</td>
+      <td>${p.nom || ""}</td>
+      <td>${p.prenom || ""}</td>
+      <td>${p.profession || ""}</td>
+      <td>${p.telephone || ""}</td>
+      <td>${p.email || ""}</td>
+      <td>${p.taille_tshirt || ""}</td>
+      <td>${p.statut || ""}</td>
+      <td>${p.reseau || ""}</td>
+      <td>${p.reference_transaction || ""}</td>
+      <td>${paiement}</td>
+      <td>${boutonRecu}</td>
+      <td>${boutonValidation}</td>
+    `;
+
+    body.appendChild(tr);
+  });
+}
+
+
+/* =========================
+   STATISTIQUES
+========================= */
+
+function mettreAJourStats() {
+
+  const total =
+    participants.length;
+
+  const valides =
+    participants.filter(
+      p => p.paiement_valide === true
+    ).length;
+
+  const attente =
+    total - valides;
+
+  document
+    .getElementById("totalParticipants")
+    .textContent = total;
+
+  document
+    .getElementById("totalValides")
+    .textContent = valides;
+
+  document
+    .getElementById("totalAttente")
+    .textContent = attente;
+}
+
+
+/* =========================
+   VALIDER PAIEMENT
+========================= */
+
+async function validerPaiement(id) {
+
+  const confirmation =
+    confirm(
+      "Confirmer la validation de ce paiement ?"
+    );
+
+  if (!confirmation) {
+    return;
+  }
+
+  const { error } =
+    await client
+      .from("participants")
+      .update({
+        paiement_valide: true
+      })
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Erreur : " + error.message
+    );
+
+    return;
+  }
+
+  alert("Paiement validé avec succès.");
+
+  chargerParticipants();
+}
+
+
+/* =========================
+   VOIR REÇU
+========================= */
+
+async function voirRecu(path) {
+
+  const { data, error } =
+    await client.storage
+      .from("Recu")
+      .createSignedUrl(
+        path,
+        300
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Impossible d'ouvrir le reçu : " +
+      error.message
+    );
+
+    return;
+  }
+
+  window.open(
+    data.signedUrl,
+    "_blank"
+  );
+}
+
+
+/* =========================
+   RECHERCHE
+========================= */
+
+document
+  .getElementById("recherche")
+  .addEventListener("input", function () {
+
+    const terme =
+      this.value
+        .toLowerCase()
+        .trim();
+
+    const resultat =
+      participants.filter(function (p) {
+
+        return (
+          (p.nom || "")
+            .toLowerCase()
+            .includes(terme) ||
+
+          (p.prenom || "")
+            .toLowerCase()
+            .includes(terme) ||
+
+          (p.telephone || "")
+            .toLowerCase()
+            .includes(terme) ||
+
+          (p.numero_inscription || "")
+            .toLowerCase()
+            .includes(terme)
+        );
+      });
+
+    afficherParticipants(resultat);
+  });
+
+
+/* =========================
+   DECONNEXION
+========================= */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener("click", async function () {
+
+    await client.auth.signOut();
+
+    location.reload();
+  });
+
+
+/* =========================
+   SESSION EXISTANTE
+========================= */
+
+client.auth.getSession()
+  .then(function ({ data }) {
+
+    if (
+      data.session &&
+      data.session.user
+    ) {
+
+      afficherDashboard(
+        data.session.user
+      );
+
+      chargerParticipants();
+    }
+  });
+</script>
+
+</body>
+</html>
