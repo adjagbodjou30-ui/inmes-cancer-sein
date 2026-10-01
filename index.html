@@ -285,4 +285,127 @@ INMeS • Campagne contre le Cancer du Sein
 </footer>
 
 </body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://sswjeqawwhdimmwzveiz.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzd2plcWF3d2hkaW1td3p2ZWl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MTgyMjEsImV4cCI6MjEwNjI5NDIyMX0.eY6rLaPOUuoHyaigNKZshsxXwipCyz2EmfcVB3WTbtE";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const form = document.querySelector("form");
+
+form.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const inputs = form.querySelectorAll("input");
+  const selects = form.querySelectorAll("select");
+
+  // Vérification de la participation
+  const participation = form.querySelector(
+    'input[name="participation"]:checked'
+  );
+
+  if (!participation) {
+    alert("Veuillez confirmer votre participation.");
+    return;
+  }
+
+  // Les champs du formulaire
+  const nom = inputs[2].value.trim();
+  const prenom = inputs[3].value.trim();
+  const profession = inputs[4].value.trim();
+  const telephone = inputs[5].value.trim();
+  const email = inputs[6].value.trim();
+
+  const tailleTshirt = selects[0].value;
+  const statut = selects[1].value;
+
+  const reseau = selects[2].value;
+  const telephonePaiement = inputs[7].value.trim();
+  const referenceTransaction = inputs[8].value.trim();
+
+  // Vérification
+  if (
+    !nom ||
+    !prenom ||
+    !profession ||
+    !telephone ||
+    !email ||
+    !tailleTshirt ||
+    !statut ||
+    !reseau ||
+    !telephonePaiement ||
+    !referenceTransaction
+  ) {
+    alert("Veuillez remplir tous les champs.");
+    return;
+  }
+
+  // Numéro d'inscription automatique
+  const numeroInscription =
+    "INMES-" +
+    new Date().getFullYear() +
+    "-" +
+    Math.floor(100000 + Math.random() * 900000);
+
+  const donnees = {
+    numero_inscription: numeroInscription,
+    nom: nom,
+    prenom: prenom,
+    profession: profession,
+    telephone: telephone,
+    email: email,
+    taille_tshirt: tailleTshirt,
+    statut: statut,
+    reseau: reseau,
+    reference_transaction: referenceTransaction,
+    montant: 3000,
+    paiement_valide: false
+  };
+
+  const bouton = form.querySelector('button[type="submit"]');
+
+  bouton.disabled = true;
+  bouton.textContent = "Enregistrement...";
+
+  try {
+    const { data, error } = await client
+      .from("participants")
+      .insert([donnees])
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      throw error;
+    }
+
+    alert(
+      "Inscription enregistrée avec succès !\n\n" +
+      "Votre numéro d'inscription : " +
+      data.numero_inscription
+    );
+
+    form.reset();
+
+  } catch (error) {
+    console.error("Erreur Supabase :", error);
+
+    alert(
+      "Erreur lors de l'inscription :\n" +
+      error.message
+    );
+
+  } finally {
+    bouton.disabled = false;
+    bouton.textContent = "Valider mon inscription";
+  }
+});
+</script>
+</body>
 </html>
+
