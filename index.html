@@ -373,11 +373,9 @@ form.addEventListener("submit", async function (event) {
   bouton.textContent = "Enregistrement...";
 
   try {
-    const { data, error } = await client
+    const { error } = await client
       .from("participants")
       .insert([donnees])
-      .select()
-      .single();
 
     if (error) {
       console.error(error);
@@ -387,7 +385,7 @@ form.addEventListener("submit", async function (event) {
     alert(
       "Inscription enregistrée avec succès !\n\n" +
       "Votre numéro d'inscription : " +
-      data.numero_inscription
+      numeroinscription
     );
 
     form.reset();
